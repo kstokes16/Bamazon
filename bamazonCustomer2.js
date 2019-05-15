@@ -1,6 +1,5 @@
 var mysql = require("mysql");
 var inquirer = require("inquirer");
-var userIDChosen;
 
 // connection to mySQL
 var connection = mysql.createConnection({
@@ -16,9 +15,10 @@ connection.connect(function(err) {
         console.error('error connecting: ' + err.stack);
         return;
     }
-    
     //displays mySQL connection ID
     console.log('connected as id ' + connection.threadId);
+    initialConnect();
+});
     
     //function to display everything for purchase
     function initialConnect() {
@@ -32,14 +32,7 @@ connection.connect(function(err) {
             
             orderRequested(results);
             
-            // then put it in choices of list type
-            
-         //   connection.end();
-            
         });}
-        
-        //calling initial connect function
-        initialConnect();})
         
         function orderRequested(dbItems) {
             
@@ -54,14 +47,13 @@ connection.connect(function(err) {
                 name: "choose_amount",
                 message: "what quantity would you like?"
             }
-            /* Pass your questions in here */
         ])
         
         .then(function(answer) {
 
             let itemChosenID;
             
-           userIDChosen = answer.choose_item.split(":")[0];
+           let userIDChosen = parseInt(answer.choose_item.split(":")[0]);
            //console.log("ID of chosen choice: " + userIDChosen)
            
            dbItems.forEach((element, index) => {
@@ -69,31 +61,42 @@ connection.connect(function(err) {
         console.log("Item selected: " + itemChosenID);
         }})
 
-        connection.query('SELECT stock_quantity FROM products', function (error, results, fields) {
+        connection.query('SELECT * FROM products', function (error, results, fields) {
             if (error) throw error;
 
             console.log(results[itemChosenID]);
+
             var customerQuantity = parseInt(answer.choose_amount)
             console.log("Customer quantity: " + customerQuantity);
+
             var dbItemQuantity = parseInt(results[itemChosenID].stock_quantity);
             console.log("Warehouse quantity: " + dbItemQuantity);
-            let stockRemaining = dbItemQuantity - customerQuantity;
-            console.log("Stock remaining: " + stockRemaining);
+
+            var newQuantity = dbItemQuantity - customerQuantity;
+            console.log("New quantity: "+newQuantity);
+
             if (dbItemQuantity >= customerQuantity) {
-                console.log("We have your items in stock. Please wait while we process your order.") 
-            } else {
+                console.log("We have your items in stock. Please wait while we process your order.");
+                
+                connection.query("UPDATE products SET ? WHERE ?",[{stock_quantity:newQuantity},{item_id: itemChosenID}], function(err, qData){
+                    console.log("Quantity Updated: "+qData);
+                })
+            } 
+            else {
                 console.log("Sorry, we're currently out of stock.")
                 return 
             }
+
+            let priceToMultiply = (results[itemChosenID].price);
+           // console.log("Price to multiply: " + priceToMultiply);
             
+            let checkoutTotal = customerQuantity;
+           // console.log("Quantity purchased: " + checkoutTotal);
+
+            let customerTotal = priceToMultiply * checkoutTotal;
+            console.log("Your total: " + "$" + customerTotal);
+           
         })
 
-        /*
-        var quantityOfItemPicked = element.stock_quantity;
-        if (quantityOfItemPicked >= answer.choose_amount) {
-            console.log("Your item is in stock.");
-        }
-        else {
-            console.log("Sorry, out of stock.");
-        }*/
+        connection.end();
     })}
