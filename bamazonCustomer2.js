@@ -33,7 +33,8 @@ connection.connect(function(err) {
             orderRequested(results);
             
         });}
-        
+
+        //inquirer prompt function
         function orderRequested(dbItems) {
             
             inquirer
@@ -51,12 +52,11 @@ connection.connect(function(err) {
         
         .then(function(answer) {
 
-            let itemChosenID;
+        let itemChosenID;
             
-           let userIDChosen = parseInt(answer.choose_item.split(":")[0]);
-           //console.log("ID of chosen choice: " + userIDChosen)
+        let userIDChosen = parseInt(answer.choose_item.split(":")[0]);
            
-           dbItems.forEach((element, index) => {
+         dbItems.forEach((element, index) => {
                if (element.item_id == userIDChosen) { itemChosenID = element.item_id - 1;
         console.log("Item selected: " + itemChosenID);
         }})
@@ -66,21 +66,24 @@ connection.connect(function(err) {
 
             console.log(results[itemChosenID]);
 
-            var customerQuantity = parseInt(answer.choose_amount)
-            console.log("Customer quantity: " + customerQuantity);
-
-            var dbItemQuantity = parseInt(results[itemChosenID].stock_quantity);
+            let dbItemQuantity = parseInt(results[itemChosenID].stock_quantity);
             console.log("Warehouse quantity: " + dbItemQuantity);
+
+            let customerQuantity = parseInt(answer.choose_amount)
+            console.log("Customer quantity: " + customerQuantity);
 
             var newQuantity = dbItemQuantity - customerQuantity;
             console.log("New quantity: "+newQuantity);
 
             if (dbItemQuantity >= customerQuantity) {
                 console.log("We have your items in stock. Please wait while we process your order.");
+            
+                    connection.query('UPDATE products SET stock_quantity=? WHERE item_id = ?',
+                        [newQuantity, itemChosenID+1],
+                        function (err, res) {
+                            if (err) throw err;
+                        })
                 
-                connection.query("UPDATE products SET ? WHERE ?",[{stock_quantity:newQuantity},{item_id: itemChosenID}], function(err, qData){
-                    console.log("Quantity Updated: "+qData);
-                })
             } 
             else {
                 console.log("Sorry, we're currently out of stock.")
@@ -88,15 +91,13 @@ connection.connect(function(err) {
             }
 
             let priceToMultiply = (results[itemChosenID].price);
-           // console.log("Price to multiply: " + priceToMultiply);
-            
+
             let checkoutTotal = customerQuantity;
-           // console.log("Quantity purchased: " + checkoutTotal);
 
             let customerTotal = priceToMultiply * checkoutTotal;
             console.log("Your total: " + "$" + customerTotal);
            
         })
 
-        connection.end();
+       // connection.end();
     })}
