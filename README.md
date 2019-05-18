@@ -16,4 +16,6 @@ If it is in stock, the purchase is made and they are notified of the total. If n
 
 [Google Drive](https://drive.google.com/open?id=1-rjTiwiDwJNOs9vxzfGa_9takcIymHBR)
 
+![Opening Screen](https://github.com/kstokes16/Bamazon/blob/master/bamazon-opener.png)
+
 
