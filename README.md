@@ -6,6 +6,14 @@ If it is in stock, the purchase is made and they are notified of the total. If n
 
 ## How it works
 
-![Bamazon Opener](https://imgur.com/BHZ3U7T)
+* A user selects the product they would like
+* A user then selects what quantity they would like
+* The MySQL database is checked to see if the item and quantity is in stock
+* If them item is in stock, the user is notified it is in stock and notified of their total
+* If their item isn't in stock, they are notified that the item is not in stock
+
+## Screenshots
+
+[Google Drive](https://drive.google.com/open?id=1-rjTiwiDwJNOs9vxzfGa_9takcIymHBR)
 
 
