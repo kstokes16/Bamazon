@@ -6,4 +6,6 @@ If it is in stock, the purchase is made and they are notified of the total. If n
 
 ## How it works
 
+![Bamazon Opener](https://imgur.com/BHZ3U7T)
+
 
